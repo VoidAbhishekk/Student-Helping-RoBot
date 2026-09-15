@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+
+users.db
+
+config.py
+
+.env
+
+.vscode/
