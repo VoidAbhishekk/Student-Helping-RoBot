@@ -1,7 +1,9 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 
-from config import OWNER_ID
+import os
+
+OWNER_ID = int(os.getenv("OWNER_ID"))
 from database import total_users
 
 
