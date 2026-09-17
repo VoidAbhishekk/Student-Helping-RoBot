@@ -6,7 +6,9 @@ from telegram.ext import (
     filters,
 )
 
-from config import TOKEN
+import os
+
+TOKEN = os.getenv("TOKEN")
 from handlers import (
     start,
     button_handler,
