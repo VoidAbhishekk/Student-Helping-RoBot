@@ -138,9 +138,6 @@ Student of BCA (@ MPGI)
 
 🤖 This bot was developed using Python and the Telegram Bot API.
 
-I made this bot specially for my loving girlfriend 
-(@ajadpanchhi)
-
 📩 Contact:
 @VoidAbhishekk
 
