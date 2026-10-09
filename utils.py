@@ -9,4 +9,4 @@ def format_message(text: str) -> str:
     """
     Adds the common footer to every bot message.
     """
-    return f"{text}{FOOTER}"
+    return f"{HEADER}{text}{FOOTER}"
