@@ -1,5 +1,5 @@
 import os
-from telegram import Update
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 from database import (
     add_user,
@@ -12,10 +12,11 @@ from database import (
 )
 from keyboards import (
     home_keyboard, pyq_year_keyboard, answerkey_year_keyboard,
-    pyq_shift_keyboard, answerkey_shift_keyboard,
+    pyq_shift_keyboard, answerkey_shift_keyboard, premium_keyboard
 )
 from utils import format_message
 from files import get_pyq_file, get_answerkey_file
+from config import CODING_DRIVE_LINK, OTHERS_DRIVE_LINK
 
 OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 
@@ -75,16 +76,67 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     elif data == "premium":
         if is_user_premium(user.id):
+
             await query.edit_message_text(
                 format_message(
-                    "⭐ Premium Library\n\n"
-                    "Choose a category.\n\n"
-                    "💻 Coding\n"
-                    "📚 Others"
+                    "👑 Premium Library\n\n"
+                    "Welcome back!\n\n"
+                    "Choose a category below."
                 ),
-                reply_markup=home_keyboard(),
+                reply_markup=premium_keyboard(),
             )
+
             return
+
+    elif data == "premium_coding":
+
+        await query.edit_message_text(
+            format_message(
+                "💻 Coding Resources\n\n"
+                "Click the button below to open the Coding Resources folder."
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "📂 Open Coding Folder",
+                            url=CODING_DRIVE_LINK,
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            "⬅ Back",
+                            callback_data="premium",
+                        )
+                    ],
+                ]
+            ),
+        )
+
+    elif data == "premium_others":
+
+        await query.edit_message_text(
+            format_message(
+                "📚 Other Resources\n\n"
+                "Click the button below to open the Other Resources folder."
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [
+                        InlineKeyboardButton(
+                            "📂 Open Other Resources",
+                            url=OTHERS_DRIVE_LINK,
+                        )
+                    ],
+                    [
+                        InlineKeyboardButton(
+                            "⬅ Back",
+                            callback_data="premium",
+                        )
+                    ],
+                ]
+            ),
+        )
 
         context.user_data["waiting_for_premium_key"] = True
 

@@ -66,3 +66,27 @@ def answerkey_shift_keyboard(year):
         [InlineKeyboardButton("🏠 Home", callback_data="home")],
     ])
     return InlineKeyboardMarkup(keyboard)
+
+def premium_keyboard():
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "💻 Coding Resources",
+                callback_data="premium_coding",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "📚 Other Resources",
+                callback_data="premium_others",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "🏠 Back to Home",
+                callback_data="home",
+            )
+        ],
+    ]
+
+    return InlineKeyboardMarkup(keyboard)
