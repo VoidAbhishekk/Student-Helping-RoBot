@@ -84,8 +84,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data["waiting_for_request"] = False
         await query.message.reply_text(
             format_message(
-                "💡 Send your suggestion in your next message.\n\n"
-                "For example: request a feature, report an issue, or suggest more papers."
+                "💡Send your suggestion.\n\n"
+                "For example...\n\n"
+                "1.Request a feature\n"
+                "2.Report an issue\n"
+                "3.Suggest more papers\n\n"
+                "Something else??\n"
+                "👇👇👇👇"
             )
         )
 
