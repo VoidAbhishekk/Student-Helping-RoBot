@@ -9,6 +9,8 @@ from database import (
     get_all_users,
     save_latest_update,
     save_premium_key,
+    get_premium_users,
+    revoke_premium,
 )
 
 OWNER_ID = int(os.getenv("OWNER_ID", "0"))

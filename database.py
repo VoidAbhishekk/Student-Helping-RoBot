@@ -17,7 +17,9 @@ def _init_db():
                 user_id INTEGER PRIMARY KEY,
                 first_name TEXT,
                 username TEXT,
-                registered_at TEXT
+                registered_at TEXT,
+                is_premium,
+                premium_activated_at
             )
         """)
         conn.execute("""
@@ -177,3 +179,25 @@ def is_user_premium(user_id):
         ).fetchone()
 
     return bool(row and row["is_premium"])
+
+def get_premium_users():
+    with _connect() as conn:
+        return conn.execute(
+            """
+            SELECT user_id, full_name, username, registered_at
+            FROM users
+            WHERE is_premium = 1
+            ORDER BY registered_at DESC
+            """
+        ).fetchall()
+
+def revoke_premium(user_id):
+    with _connect() as conn:
+        conn.execute(
+            """
+            UPDATE users
+            SET is_premium = 0
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        )
