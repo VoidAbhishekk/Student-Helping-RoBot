@@ -76,6 +76,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             format_message(message), reply_markup=home_keyboard()
         )
     elif data == "premium":
+
         if is_user_premium(user.id):
 
             await query.edit_message_text(
@@ -86,8 +87,17 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 ),
                 reply_markup=premium_keyboard(),
             )
-
             return
+
+        context.user_data["waiting_for_premium_key"] = True
+
+        await query.message.reply_text(
+            format_message(
+                "⭐ Premium Library\n\n"
+                "Unlock exclusive resources.\n\n"
+                "Please enter your Premium Access Key."
+            )
+        )
 
     elif data == "premium_coding":
 
@@ -181,12 +191,14 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         profile = get_user(user.id) or {}
         username = f"@{user.username}" if user.username else "Not set"
         registered = profile.get("registered_at") or "Not available"
+        premium = "✅ Premium" if is_user_premium(user.id) else "❌ Free"
         text = (
             "👤 User Profile\n\n"
             f">> Name: {user.full_name}\n"
             f">> Username: {username}\n"
             f">> User ID: {user.id}\n"
-            f">> Registered: {registered}\n\n"
+            f">> Registered: {registered}\n"
+            f">> Membership: {premium}\n"
             "---Info fetched successfully---"
         )
         await query.edit_message_text(
