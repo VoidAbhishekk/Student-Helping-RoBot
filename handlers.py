@@ -16,10 +16,11 @@ from keyboards import (
 )
 from utils import format_message
 from files import get_pyq_file, get_answerkey_file
-from config import CODING_DRIVE_LINK, OTHERS_DRIVE_LINK
 
 OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 
+CODING_DRIVE_LINK = os.getenv("CODING_DRIVE_LINK")
+OTHERS_DRIVE_LINK = os.getenv("OTHERS_DRIVE_LINK")
 
 def _home_text(first_name: str) -> str:
     return f"""👋 Hello, {first_name}!
