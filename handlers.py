@@ -16,11 +16,11 @@ OWNER_ID = int(os.getenv("OWNER_ID", "0"))
 def _home_text(first_name: str) -> str:
     return f"""👋 Hello, {first_name}!
 
-Welcome to Student Helping Bot 📚
+Welcome to Student Helping Bot ❤️
 
 Your personal assistant for government exam preparation.
 
-Choose an option below 👇"""
+Choose an option below 👇👇"""
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -46,13 +46,13 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif data == "pyq":
         await query.edit_message_text(
-            format_message("📚 Previous Year Question Papers\n\nSelect the exam year."),
+            format_message("📚 Previous Year Question Papers\n\nSelect the exam year 👇."),
             reply_markup=pyq_year_keyboard(),
         )
 
     elif data == "answerkey":
         await query.edit_message_text(
-            format_message("✅ Answer Keys\n\nSelect the exam year."),
+            format_message("📖 Answer Keys\n\nSelect the exam year 👇."),
             reply_markup=answerkey_year_keyboard(),
         )
 
@@ -72,10 +72,10 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data["waiting_for_suggestion"] = False
         await query.message.reply_text(
             format_message(
-                "📝 Request a Paper\n\n"
-                "Send the exam name, year, and shift you need.\n\n"
-                "Example: UPSSSC PET 2024, Shift 2.\n"
-                "You can include any other useful details too."
+                "📝 Request a paper\n\n"
+                "Send the exam name, year, or shift you need.\n\n"
+                "Example: UPSSSC PET 20xx, Shift x.\n"
+                "You can include any other useful details."
             )
         )
 
@@ -86,9 +86,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             format_message(
                 "💡Send your suggestion.\n\n"
                 "For example...\n\n"
-                "1.Request a feature\n"
-                "2.Report an issue\n"
-                "3.Suggest more papers\n\n"
+                "1. Request a feature\n"
+                "2. Report an issue\n"
+                "3. Suggest more papers\n\n"
                 "Something else??\n"
                 "👇👇👇👇"
             )
@@ -169,7 +169,7 @@ This bot was created to help students find study resources more conveniently. Th
         year = data.split("_", 1)[1]
         await query.edit_message_text(
             format_message(
-                f"📚 PET Previous Year Papers\n\nSelected Year: {year}\n\nChoose a shift."
+                f"📚 PET Previous Year Papers\n\nSelected Year: {year}\n\nChoose a shift. 👇"
             ),
             reply_markup=pyq_shift_keyboard(year),
         )
@@ -178,7 +178,7 @@ This bot was created to help students find study resources more conveniently. Th
         year = data.split("_", 1)[1]
         await query.edit_message_text(
             format_message(
-                f"✅ PET Answer Keys\n\nSelected Year: {year}\n\nChoose a shift."
+                f"📖 PET Answer Keys\n\nSelected Year: {year}\n\nChoose a shift. 👇"
             ),
             reply_markup=answerkey_shift_keyboard(year),
         )
