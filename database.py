@@ -130,3 +130,50 @@ def save_premium_key(access_key):
                 datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             ),
         )
+
+def get_premium_key(access_key):
+    with _connect() as conn:
+        return conn.execute(
+            """
+            SELECT *
+            FROM premium_keys
+            WHERE access_key = ?
+            """,
+            (access_key,),
+        ).fetchone()
+
+def mark_key_used(access_key, user_id):
+    with _connect() as conn:
+        conn.execute(
+            """
+            UPDATE premium_keys
+            SET used = 1,
+                used_by = ?
+            WHERE access_key = ?
+            """,
+            (user_id, access_key),
+        )
+
+def make_user_premium(user_id):
+    with _connect() as conn:
+        conn.execute(
+            """
+            UPDATE users
+            SET is_premium = 1
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        )
+
+def is_user_premium(user_id):
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT is_premium
+            FROM users
+            WHERE user_id = ?
+            """,
+            (user_id,),
+        ).fetchone()
+
+    return bool(row and row["is_premium"])

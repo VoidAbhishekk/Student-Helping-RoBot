@@ -1,8 +1,15 @@
 import os
 from telegram import Update
 from telegram.ext import ContextTypes
-
-from database import add_user, get_user, get_latest_update
+from database import (
+    add_user,
+    get_user,
+    get_latest_update,
+    get_premium_key,
+    mark_key_used,
+    make_user_premium,
+    is_user_premium,
+)
 from keyboards import (
     home_keyboard, pyq_year_keyboard, answerkey_year_keyboard,
     pyq_shift_keyboard, answerkey_shift_keyboard,
@@ -66,6 +73,28 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await query.edit_message_text(
             format_message(message), reply_markup=home_keyboard()
         )
+    elif data == "premium":
+        if is_user_premium(user.id):
+            await query.edit_message_text(
+                format_message(
+                    "⭐ Premium Library\n\n"
+                    "Choose a category.\n\n"
+                    "💻 Coding\n"
+                    "📚 Others"
+                ),
+                reply_markup=home_keyboard(),
+            )
+            return
+
+        context.user_data["waiting_for_premium_key"] = True
+
+        await query.message.reply_text(
+            format_message(
+                "⭐ Premium Library\n\n"
+                "Unlock exclusive resources.\n\n"
+                "Please enter your Premium Access Key."
+            )
+        )   
 
     elif data == "request_paper":
         context.user_data["waiting_for_request"] = True
@@ -190,12 +219,51 @@ async def receive_suggestion(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     is_request = context.user_data.get("waiting_for_request")
     is_suggestion = context.user_data.get("waiting_for_suggestion")
-    if not (is_request or is_suggestion):
+    is_premium = context.user_data.get("waiting_for_premium_key")
+    if not (is_request or is_suggestion or is_premium):
         return
 
     user = update.effective_user
     message = update.message.text.strip()
     username = f"@{user.username}" if user.username else "Not set"
+
+    if is_premium:
+        context.user_data["waiting_for_premium_key"] = False
+
+        key = message.strip().upper()
+
+        premium_key = get_premium_key(key)
+
+        if premium_key is None:
+            await update.message.reply_text(
+                format_message(
+                    "❌ Invalid Premium Access Key.\n\nPlease check the key and try again."
+                )
+            )
+            return
+
+        if premium_key["used"]:
+            await update.message.reply_text(
+                format_message(
+                    "❌ This Premium Access Key has already been used.\n\n"
+                    "If you think this is a mistake, please contact the bot owner."
+                )
+            )
+            return
+
+        mark_key_used(key, user.id)
+
+        make_user_premium(user.id)
+
+        await update.message.reply_text(
+            format_message(
+                "🎉 Congratulations!\n\n"
+                "Your Premium Membership has been activated successfully! ❤️\n\n"
+                "You can now access Premium Library."
+            )
+        )
+
+        return
 
     if is_request:
         context.user_data["waiting_for_request"] = False

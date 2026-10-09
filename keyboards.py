@@ -9,6 +9,7 @@ def home_keyboard():
             InlineKeyboardButton("📖 Answer Keys", callback_data="answerkey"),
         ],
         [InlineKeyboardButton("📢 Latest Updates", callback_data="latest_updates")],
+        [InlineKeyboardButton("⭐ Premium Library", callback_data="premium")],
         [InlineKeyboardButton("📝 Request a Paper", callback_data="request_paper")],
         [InlineKeyboardButton("💡 Suggestion", callback_data="suggest")],
         [InlineKeyboardButton("👤 My Profile", callback_data="profile")],
