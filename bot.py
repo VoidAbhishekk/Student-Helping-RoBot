@@ -14,7 +14,7 @@ from handlers import (
     button_handler,
     receive_suggestion,
 )
-from admin import admin
+from admin import admin, users, broadcast
 
 
 app = Application.builder().token(TOKEN).build()
@@ -28,6 +28,8 @@ app.add_handler(
     )
 )
 app.add_handler(CommandHandler("admin", admin))
+app.add_handler(CommandHandler("users", users))
+app.add_handler(CommandHandler("broadcast", broadcast))
 print("✅ Government Exam Helper Bot Started!")
 
 app.run_polling()
