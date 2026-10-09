@@ -149,16 +149,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ),
         )
 
-        context.user_data["waiting_for_premium_key"] = True
-
-        await query.message.reply_text(
-            format_message(
-                "⭐ Premium Library\n\n"
-                "Unlock exclusive resources.\n\n"
-                "Please enter your Premium Access Key."
-            )
-        )   
-
     elif data == "request_paper":
         context.user_data["waiting_for_request"] = True
         context.user_data["waiting_for_suggestion"] = False
