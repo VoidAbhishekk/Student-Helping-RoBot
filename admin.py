@@ -21,28 +21,28 @@ async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Available commands:\n"
         "/users — View registered user IDs\n"
         "/broadcast Write your message — Send an announcement to all registered users\n\n"
-        "The latest broadcast is saved for the 📢 Latest Updates button."
+        "The latest broadcast is saved for the latest Updates button. 📢"
     )
 
 
 async def users(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not _is_owner(update):
-        await update.effective_message.reply_text("❌ Access denied.")
+        await update.effective_message.reply_text("❌ Access denied. ❌")
         return
     all_users = get_all_users()
     await update.effective_message.reply_text(f"👥 Total registered users: {len(all_users)}")
-    if not all_users:
-        return
-    chunk = ""
-    for row in all_users:
-        candidate = f"{chunk}\n{row[0]}".strip()
-        if len(candidate) > 3500:
-            await update.effective_message.reply_text(chunk)
-            chunk = str(row[0])
-        else:
-            chunk = candidate
-    if chunk:
-        await update.effective_message.reply_text(chunk)
+    # if not all_users:
+    #     return
+    # chunk = ""
+    # for row in all_users:
+    #     candidate = f"{chunk}\n{row[0]}".strip()
+    #     if len(candidate) > 3500:
+    #         await update.effective_message.reply_text(chunk)
+    #         chunk = str(row[0])
+    #     else:
+    #         chunk = candidate
+    # if chunk:
+    #     await update.effective_message.reply_text(chunk)
 
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
