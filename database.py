@@ -20,9 +20,24 @@ def _init_db():
                 registered_at TEXT
             )
         """)
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS premium_keys (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            access_key TEXT UNIQUE NOT NULL,
+            used INTEGER DEFAULT 0,
+            used_by INTEGER,
+            created_on TEXT
+        )
+        """)
         columns = {row["name"] for row in conn.execute("PRAGMA table_info(users)")}
         if "registered_at" not in columns:
             conn.execute("ALTER TABLE users ADD COLUMN registered_at TEXT")
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(users)")}
+
+        if "is_premium" not in columns:
+            conn.execute(
+                "ALTER TABLE users ADD COLUMN is_premium INTEGER DEFAULT 0"
+            )
             conn.execute(
                 "UPDATE users SET registered_at = ? WHERE registered_at IS NULL",
                 (datetime.now().strftime("%Y-%m-%d"),),
@@ -32,6 +47,15 @@ def _init_db():
                 setting_key TEXT PRIMARY KEY,
                 setting_value TEXT
             )
+        """)
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS premium_keys (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            access_key TEXT UNIQUE NOT NULL,
+            used INTEGER DEFAULT 0,
+            used_by INTEGER,
+            created_on TEXT
+        )
         """)
 
 
