@@ -3,7 +3,7 @@ from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters,
 )
 from handlers import start, button_handler, receive_suggestion
-from admin import admin, users, broadcast
+from admin import admin, users, broadcast, createkey
 
 TOKEN = os.getenv("TOKEN")
 if not TOKEN:
@@ -16,6 +16,7 @@ app.add_handler(CommandHandler("start", start))
 app.add_handler(CommandHandler("admin", admin))
 app.add_handler(CommandHandler("users", users))
 app.add_handler(CommandHandler("broadcast", broadcast))
+app.add_handler(CommandHandler("createkey", createkey))
 app.add_handler(CallbackQueryHandler(button_handler))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, receive_suggestion))
 

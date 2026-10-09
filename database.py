@@ -115,3 +115,18 @@ def get_latest_update():
             "SELECT setting_value FROM bot_settings WHERE setting_key = 'latest_update'"
         ).fetchone()
         return row["setting_value"] if row else None
+
+
+def save_premium_key(access_key):
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO premium_keys
+            (access_key, created_on)
+            VALUES (?, ?)
+            """,
+            (
+                access_key,
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            ),
+        )
