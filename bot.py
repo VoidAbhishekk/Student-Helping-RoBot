@@ -4,6 +4,7 @@ from telegram.ext import (
 )
 from handlers import start, button_handler, receive_suggestion
 from admin import admin, users, broadcast, createkey
+import premiumusers
 
 TOKEN = os.getenv("TOKEN")
 if not TOKEN:
@@ -18,6 +19,7 @@ app.add_handler(CommandHandler("users", users))
 app.add_handler(CommandHandler("broadcast", broadcast))
 app.add_handler(CommandHandler("createkey", createkey))
 app.add_handler(CallbackQueryHandler(button_handler))
+app.add_handler(CommandHandler("premiumusers", premiumusers))
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, receive_suggestion))
 
 print("✅ Student Helping Bot Started!")

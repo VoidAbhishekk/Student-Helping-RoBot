@@ -182,14 +182,19 @@ def is_user_premium(user_id):
 
 def get_premium_users():
     with _connect() as conn:
-        return conn.execute(
+        rows = conn.execute(
             """
-            SELECT user_id, full_name, username, registered_at
+            SELECT user_id,
+                   full_name,
+                   username,
+                   registered_at
             FROM users
             WHERE is_premium = 1
             ORDER BY registered_at DESC
             """
         ).fetchall()
+
+    return rows
 
 def revoke_premium(user_id):
     with _connect() as conn:

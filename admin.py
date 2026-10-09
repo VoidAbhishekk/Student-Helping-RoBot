@@ -109,3 +109,34 @@ async def createkey(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"✅ Premium Key Created\n\n<code>{key}</code>",
         parse_mode="HTML",
     )
+
+async def premiumusers(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+    if not _is_owner(update):
+        await update.effective_message.reply_text("❌ Access denied.")
+        return
+
+    users = get_premium_users()
+
+    if not users:
+        await update.effective_message.reply_text(
+            "👑 There are no Premium users."
+        )
+        return
+
+    text = "👑 Premium Users\n\n"
+
+    for i, row in enumerate(users, start=1):
+
+        username = f"@{row['username']}" if row["username"] else "Not set"
+
+        text += (
+            f"{i}. {row['full_name']}\n"
+            f"🆔 {row['user_id']}\n"
+            f"👤 {username}\n"
+            f"📅 {row['registered_at']}\n\n"
+        )
+
+    text += f"━━━━━━━━━━━━━━\n\nTotal Premium Users: {len(users)}"
+
+    await update.effective_message.reply_text(text)
