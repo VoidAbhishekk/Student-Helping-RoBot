@@ -95,11 +95,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         username = f"@{user.username}" if user.username else "Not set"
         registered = profile.get("registered_at") or "Not available"
         text = (
-            "👤 My Profile\n\n"
-            f"🆔 User ID: {user.id}\n"
-            f"👤 Name: {user.full_name}\n"
-            f"🔗 Username: {username}\n"
-            f"📅 Registered: {registered}"
+            "👤 User Profile\n\n"
+            f">> Name: {user.full_name}\n"
+            f">> Username: {username}\n"
+            f">> User ID: {user.id}\n"
+            f">> Registered: {registered}\n\n"
+            "---Info fetched successfully---"
         )
         await query.edit_message_text(
             format_message(text), reply_markup=home_keyboard()
@@ -119,7 +120,7 @@ Student Helping Bot is built to make government exam preparation resources easie
 • Personal profile
 
 👨‍💻 Developer: Abhishek Singh
-🛠️ Built with: Python and Telegram Bot API
+🛠️ Built with: Python
 📩 Contact: @VoidAbhishekk
 
 This bot was created to help students find study resources more conveniently. Thank you for using it! ❤️"""

@@ -20,7 +20,7 @@ async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"👑 Admin Panel\n\n👥 Total Users: {total_users()}\n\n"
         "Available commands:\n"
         "/users — View registered user IDs\n"
-        "/broadcast Your message — Send an announcement to all registered users\n\n"
+        "/broadcast Write your message — Send an announcement to all registered users\n\n"
         "The latest broadcast is saved for the 📢 Latest Updates button."
     )
 
