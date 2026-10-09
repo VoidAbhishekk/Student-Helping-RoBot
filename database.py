@@ -1,61 +1,93 @@
 import sqlite3
+from datetime import datetime
 
-conn = sqlite3.connect("users.db")
+DB_PATH = "users.db"
 
-cursor = conn.cursor()
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users(
+def _connect():
+    conn = sqlite3.connect(DB_PATH, timeout=30)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-    user_id INTEGER PRIMARY KEY,
-    first_name TEXT,
-    username TEXT
 
-)
-""")
+def _init_db():
+    with _connect() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY,
+                first_name TEXT,
+                username TEXT,
+                registered_at TEXT
+            )
+        """)
+        columns = {row["name"] for row in conn.execute("PRAGMA table_info(users)")}
+        if "registered_at" not in columns:
+            conn.execute("ALTER TABLE users ADD COLUMN registered_at TEXT")
+            conn.execute(
+                "UPDATE users SET registered_at = ? WHERE registered_at IS NULL",
+                (datetime.now().strftime("%Y-%m-%d"),),
+            )
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS bot_settings (
+                setting_key TEXT PRIMARY KEY,
+                setting_value TEXT
+            )
+        """)
 
-conn.commit()
+
+_init_db()
 
 
 def add_user(user):
-
-    cursor.execute(
-
-        """
-        INSERT OR IGNORE INTO users
-        VALUES(?,?,?)
-        """,
-
-        (
-
-            user.id,
-            user.first_name,
-            user.username
-
+    today = datetime.now().strftime("%Y-%m-%d")
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO users (user_id, first_name, username, registered_at)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET
+                first_name = excluded.first_name,
+                username = excluded.username
+            """,
+            (user.id, user.first_name, user.username, today),
         )
 
-    )
 
-    conn.commit()
+def get_user(user_id):
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT user_id, first_name, username, registered_at FROM users WHERE user_id = ?",
+            (user_id,),
+        ).fetchone()
+        return dict(row) if row else None
 
 
 def total_users():
-
-    cursor.execute(
-
-        "SELECT COUNT(*) FROM users"
-
-    )
-
-    return cursor.fetchone()[0]
+    with _connect() as conn:
+        return conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
 
 
 def get_all_users():
+    with _connect() as conn:
+        rows = conn.execute("SELECT user_id FROM users").fetchall()
+        return [(row["user_id"],) for row in rows]
 
-    cursor.execute(
 
-        "SELECT user_id FROM users"
+def save_latest_update(message):
+    with _connect() as conn:
+        conn.execute(
+            """
+            INSERT INTO bot_settings (setting_key, setting_value)
+            VALUES ('latest_update', ?)
+            ON CONFLICT(setting_key) DO UPDATE SET setting_value = excluded.setting_value
+            """,
+            (message,),
+        )
 
-    )
 
-    return cursor.fetchall()
+def get_latest_update():
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT setting_value FROM bot_settings WHERE setting_key = 'latest_update'"
+        ).fetchone()
+        return row["setting_value"] if row else None

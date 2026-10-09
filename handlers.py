@@ -1,234 +1,221 @@
+import os
 from telegram import Update
 from telegram.ext import ContextTypes
-import os
 
-OWNER_ID = int(os.getenv("OWNER_ID"))
-from database import add_user
-
+from database import add_user, get_user, get_latest_update
 from keyboards import (
-    home_keyboard,
-    pyq_year_keyboard,
-    answerkey_year_keyboard,
-    pyq_shift_keyboard,
-    answerkey_shift_keyboard,
+    home_keyboard, pyq_year_keyboard, answerkey_year_keyboard,
+    pyq_shift_keyboard, answerkey_shift_keyboard,
 )
-
 from utils import format_message
+from files import get_pyq_file, get_answerkey_file
 
-from files import (
-    get_pyq_file,
-    get_answerkey_file,
-)
-# -------------------------------
-# /start
-# -------------------------------
+OWNER_ID = int(os.getenv("OWNER_ID", "0"))
+
+
+def _home_text(first_name: str) -> str:
+    return f"""👋 Hello, {first_name}!
+
+Welcome to Student Helping Bot 📚
+
+Your personal assistant for government exam preparation.
+
+Choose an option below 👇"""
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     user = update.effective_user
-
     add_user(user)
-    
-    text = f"""
-👋 Hello, {user.first_name}!
-Username: @{user.username}
-User ID: {user.id}
-
-Welcome to Helping RoBot.
-
-I'm your personal helping bot.
-
-Please choose an option below:
-
-📚 PYQs
-📝 Answer Keys
-💡 Suggestions
-"""
-
-    await update.message.reply_text(
-        format_message(text),
-        reply_markup=home_keyboard()
+    await update.effective_message.reply_text(
+        format_message(_home_text(user.first_name or "there")),
+        reply_markup=home_keyboard(),
     )
 
-# -------------------------------
-# BUTTON HANDLER
-# -------------------------------
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     query = update.callback_query
     await query.answer()
+    data = query.data or ""
+    user = query.from_user
 
-    if query.data == "home":
-
-        user = query.from_user.first_name
-
-        text = f"""
-👋 Hello, {user}!
-
-Welcome to Helping RoBot.
-
-I'm your personal helping bot.
-
-Please choose an option below:
-
-📚 Previous Year Papers
-📝 Answer Keys
-💡 Suggestions
-"""
-
+    if data == "home":
         await query.edit_message_text(
-            format_message(text),
-            reply_markup=home_keyboard()
+            format_message(_home_text(user.first_name or "there")),
+            reply_markup=home_keyboard(),
         )
 
-    elif query.data == "pyq":
-
+    elif data == "pyq":
         await query.edit_message_text(
+            format_message("📚 Previous Year Question Papers\n\nSelect the exam year."),
+            reply_markup=pyq_year_keyboard(),
+        )
+
+    elif data == "answerkey":
+        await query.edit_message_text(
+            format_message("✅ Answer Keys\n\nSelect the exam year."),
+            reply_markup=answerkey_year_keyboard(),
+        )
+
+    elif data == "latest_updates":
+        latest = get_latest_update()
+        message = (
+            f"📢 Latest Update\n\n{latest}"
+            if latest else
+            "📢 Latest Updates\n\nThere are no announcements yet. Please check again later!"
+        )
+        await query.edit_message_text(
+            format_message(message), reply_markup=home_keyboard()
+        )
+
+    elif data == "request_paper":
+        context.user_data["waiting_for_request"] = True
+        context.user_data["waiting_for_suggestion"] = False
+        await query.message.reply_text(
             format_message(
-                "📚 Previous Year Papers\n\nSelect the exam year."
-            ),
-            reply_markup=pyq_year_keyboard()
+                "📝 Request a Paper\n\n"
+                "Send the exam name, year, and shift you need.\n\n"
+                "Example: UPSSSC PET 2024, Shift 2.\n"
+                "You can include any other useful details too."
+            )
         )
 
-    elif query.data == "answerkey":
-
-        await query.edit_message_text(
+    elif data == "suggest":
+        context.user_data["waiting_for_suggestion"] = True
+        context.user_data["waiting_for_request"] = False
+        await query.message.reply_text(
             format_message(
-                "📝 Answer Keys\n\nSelect the exam year."
-            ),
-            reply_markup=answerkey_year_keyboard()
+                "💡 Send your suggestion in your next message.\n\n"
+                "For example: request a feature, report an issue, or suggest more papers."
+            )
         )
-# ---------------- PYQ YEAR ----------------
 
-    elif query.data.startswith("pyq_"):
+    elif data == "profile":
+        add_user(user)
+        profile = get_user(user.id) or {}
+        username = f"@{user.username}" if user.username else "Not set"
+        registered = profile.get("registered_at") or "Not available"
+        text = (
+            "👤 My Profile\n\n"
+            f"🆔 User ID: {user.id}\n"
+            f"👤 Name: {user.full_name}\n"
+            f"🔗 Username: {username}\n"
+            f"📅 Registered: {registered}"
+        )
+        await query.edit_message_text(
+            format_message(text), reply_markup=home_keyboard()
+        )
 
-        year = query.data.split("_")[1]
+    elif data == "about":
+        text = """ℹ️ About Student Helping Bot
 
+Student Helping Bot is built to make government exam preparation resources easier to access.
+
+✨ Features
+• Previous Year Question Papers (PYQs)
+• Answer Keys
+• Latest announcements
+• Paper requests
+• Suggestions and feedback
+• Personal profile
+
+👨‍💻 Developer: Abhishek Singh
+🛠️ Built with: Python and Telegram Bot API
+📩 Contact: @VoidAbhishekk
+
+This bot was created to help students find study resources more conveniently. Thank you for using it! ❤️"""
+        await query.edit_message_text(
+            format_message(text), reply_markup=home_keyboard()
+        )
+
+    elif data.startswith("pyqfile_"):
+        _, year, shift = data.split("_", 2)
+        pdf_path = get_pyq_file(year, shift)
+        try:
+            with open(pdf_path, "rb") as pdf:
+                await query.message.reply_document(
+                    document=pdf,
+                    caption=format_message(
+                        f"📄 PET {year}\n\nShift {shift}\n\n✅ PDF sent successfully."
+                    ),
+                )
+        except FileNotFoundError:
+            await query.message.reply_text(
+                format_message("❌ Sorry, this paper file is not available right now.")
+            )
+
+    elif data.startswith("answerfile_"):
+        _, year, shift = data.split("_", 2)
+        pdf_path = get_answerkey_file(year, shift)
+        try:
+            with open(pdf_path, "rb") as pdf:
+                await query.message.reply_document(
+                    document=pdf,
+                    caption=format_message(
+                        f"✅ PET {year} Answer Key\n\nShift {shift}\n\nPDF sent successfully."
+                    ),
+                )
+        except FileNotFoundError:
+            await query.message.reply_text(
+                format_message("❌ Sorry, this answer key file is not available right now.")
+            )
+
+    elif data.startswith("pyq_"):
+        year = data.split("_", 1)[1]
         await query.edit_message_text(
             format_message(
                 f"📚 PET Previous Year Papers\n\nSelected Year: {year}\n\nChoose a shift."
             ),
-            reply_markup=pyq_shift_keyboard(year)
+            reply_markup=pyq_shift_keyboard(year),
         )
 
-
-# ---------------- ANSWER KEY YEAR ----------------
-
-    elif query.data.startswith("answer_"):
-
-        year = query.data.split("_")[1]
-
+    elif data.startswith("answer_"):
+        year = data.split("_", 1)[1]
         await query.edit_message_text(
             format_message(
-                f"📝 PET Answer Keys\n\nSelected Year: {year}\n\nChoose a shift."
+                f"✅ PET Answer Keys\n\nSelected Year: {year}\n\nChoose a shift."
             ),
-            reply_markup=answerkey_shift_keyboard(year)
+            reply_markup=answerkey_shift_keyboard(year),
         )
 
-# ---------------- ABOUT OWNER ----------------
-
-    elif query.data == "about":
-
-        text = """
-👨‍💻 About Owner
-
-Developer: Abhishek Singh
-Student of BCA (@ MPGI)
-
-🤖 This bot was developed using Python and the Telegram Bot API.
-
-📩 Contact:
-@VoidAbhishekk
-
-Thank you for using this bot! ❤️
-"""
-
-        await query.edit_message_text(
-            format_message(text),
-            reply_markup=home_keyboard()
-        )
-    elif query.data == "suggest":
-
-        await query.message.reply_text(
-            "💡 Send your suggestion below.\n\n"
-            "Example:\n"
-            "• Add more options\n"
-            "• Upload more pyqs\n"
-            "• Improve UI\n"
-            "Something else 👇👇"
-        )
-        
-        context.user_data["waiting_for_suggestion"] = True
-
-# ---------------- PYQ PDF ----------------
-
-    elif query.data.startswith("pyqfile_"):
-
-        _, year, shift = query.data.split("_")
-
-        pdf_path = get_pyq_file(year, shift)
-
-        await query.message.reply_document(
-            document=open(pdf_path, "rb"),
-            caption=format_message(
-                f"""📄 PET {year}
-
-Shift {shift}
-
-✅ PDF Sent Successfully."""
-            )
-        )
-
-
-
-# ---------------- ANSWER KEY PDF ----------------
-
-    elif query.data.startswith("answerfile_"):
-
-        _, year, shift = query.data.split("_")
-
-        pdf_path = get_answerkey_file(year, shift)
-
-        await query.message.reply_document(
-            document=open(pdf_path, "rb"),
-            caption=format_message(
-                f"""📝 PET {year} Answer Key
-
-Shift {shift}
-
-✅ Answer Key Sent Successfully."""
-            )
-        )
 
 async def receive_suggestion(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if not context.user_data.get("waiting_for_suggestion"):
+    """Route ordinary text messages to whichever user flow is active."""
+    if not update.message or not update.message.text:
+        return
+    is_request = context.user_data.get("waiting_for_request")
+    is_suggestion = context.user_data.get("waiting_for_suggestion")
+    if not (is_request or is_suggestion):
         return
 
-    context.user_data["waiting_for_suggestion"] = False
-
     user = update.effective_user
+    message = update.message.text.strip()
+    username = f"@{user.username}" if user.username else "Not set"
 
-    suggestion = update.message.text
+    if is_request:
+        context.user_data["waiting_for_request"] = False
+        subject = "📝 New Paper Request"
+        label = "Request"
+        confirmation = "✅ Your paper request has been sent to the developer. Thank you!"
+    else:
+        context.user_data["waiting_for_suggestion"] = False
+        subject = "💡 New Suggestion"
+        label = "Suggestion"
+        confirmation = "✅ Thank you! Your suggestion has been sent to the developer."
 
-    text = f"""
-📩 New Suggestion
-
-👤 Name: {user.first_name}
-🆔 ID: {user.id}
-📛 Username: @{user.username if user.username else 'None'}
-
-💬 Suggestion:
-
-{suggestion}
-"""
-
-    await context.bot.send_message(
-        chat_id=OWNER_ID,
-        text=text
+    owner_message = (
+        f"{subject}\n\n"
+        f"👤 Name: {user.full_name}\n"
+        f"🆔 ID: {user.id}\n"
+        f"🔗 Username: {username}\n\n"
+        f"{label}:\n{message}"
     )
-
-    await update.message.reply_text(
-        "✅ Thank you! Your suggestion has been sent to the developer."
-    )
+    try:
+        await context.bot.send_message(chat_id=OWNER_ID, text=owner_message)
+    except Exception:
+        await update.message.reply_text(
+            format_message(
+                "❌ Sorry, your message could not be delivered right now. Please try again later."
+            )
+        )
+        return
+    await update.message.reply_text(format_message(confirmation))

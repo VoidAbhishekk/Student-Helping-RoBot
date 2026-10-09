@@ -1,130 +1,67 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from files import (
-    get_available_years,
-    get_available_shifts,
-    PYQ_FOLDER,
-    ANSWERKEY_FOLDER
-)
+from files import get_available_years, get_available_shifts, PYQ_FOLDER, ANSWERKEY_FOLDER
 
-
-# ---------------- HOME ---------------- #
 
 def home_keyboard():
-
     keyboard = [
         [
-            InlineKeyboardButton("📚 PYQs", callback_data="pyq"),
-            InlineKeyboardButton("📝 Answer Keys", callback_data="answerkey")
+            InlineKeyboardButton("📚 PYQ Papers", callback_data="pyq"),
+            InlineKeyboardButton("✅ Answer Keys", callback_data="answerkey"),
         ],
-        [
-            InlineKeyboardButton("💡 Suggestions", callback_data="suggest")
-        ],
-        [
-            InlineKeyboardButton("👤 About Owner", callback_data="about")
-        ]
+        [InlineKeyboardButton("📢 Latest Updates", callback_data="latest_updates")],
+        [InlineKeyboardButton("📝 Request a Paper", callback_data="request_paper")],
+        [InlineKeyboardButton("💡 Suggestion", callback_data="suggest")],
+        [InlineKeyboardButton("👤 My Profile", callback_data="profile")],
+        [InlineKeyboardButton("ℹ️ About Bot", callback_data="about")],
     ]
-
     return InlineKeyboardMarkup(keyboard)
 
-
-# ---------------- PYQ YEARS ---------------- #
 
 def pyq_year_keyboard():
-
-    keyboard = []
-
-    years = get_available_years(PYQ_FOLDER)
-
-    for year in years:
-        keyboard.append([
-            InlineKeyboardButton(
-                f"📄 PET {year}",
-                callback_data=f"pyq_{year}"
-            )
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton("🏠 Home", callback_data="home")
-    ])
-
+    keyboard = [
+        [InlineKeyboardButton(f"📄 PET {year}", callback_data=f"pyq_{year}")]
+        for year in get_available_years(PYQ_FOLDER)
+    ]
+    if not keyboard:
+        keyboard.append([InlineKeyboardButton("No papers available yet", callback_data="home")])
+    keyboard.append([InlineKeyboardButton("🏠 Home", callback_data="home")])
     return InlineKeyboardMarkup(keyboard)
 
-
-# ---------------- ANSWER KEY YEARS ---------------- #
 
 def answerkey_year_keyboard():
-
-    keyboard = []
-
-    years = get_available_years(ANSWERKEY_FOLDER)
-
-    for year in years:
-        keyboard.append([
-            InlineKeyboardButton(
-                f"📄 PET {year}",
-                callback_data=f"answer_{year}"
-            )
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton("🏠 Home", callback_data="home")
-    ])
-
+    keyboard = [
+        [InlineKeyboardButton(f"📄 PET {year}", callback_data=f"answer_{year}")]
+        for year in get_available_years(ANSWERKEY_FOLDER)
+    ]
+    if not keyboard:
+        keyboard.append([InlineKeyboardButton("No answer keys available yet", callback_data="home")])
+    keyboard.append([InlineKeyboardButton("🏠 Home", callback_data="home")])
     return InlineKeyboardMarkup(keyboard)
 
-
-# ---------------- PYQ SHIFTS ---------------- #
 
 def pyq_shift_keyboard(year):
-
-    keyboard = []
-
-    shifts = get_available_shifts(PYQ_FOLDER, year)
-    print(shifts)
-
-    for shift in shifts:
-
-        keyboard.append([
-            InlineKeyboardButton(
-                f"📄 Shift {shift}",
-                callback_data=f"pyqfile_{year}_{shift}"
-            )
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton("⬅ Back", callback_data="pyq")
+    keyboard = [
+        [InlineKeyboardButton(f"📄 Shift {shift}", callback_data=f"pyqfile_{year}_{shift}")]
+        for shift in get_available_shifts(PYQ_FOLDER, year)
+    ]
+    if not keyboard:
+        keyboard.append([InlineKeyboardButton("No shifts available", callback_data="home")])
+    keyboard.extend([
+        [InlineKeyboardButton("⬅ Back", callback_data="pyq")],
+        [InlineKeyboardButton("🏠 Home", callback_data="home")],
     ])
-
-    keyboard.append([
-        InlineKeyboardButton("🏠 Home", callback_data="home")
-    ])
-
     return InlineKeyboardMarkup(keyboard)
 
 
-# ---------------- ANSWER KEY SHIFTS ---------------- #
-
 def answerkey_shift_keyboard(year):
-
-    keyboard = []
-
-    shifts = get_available_shifts(ANSWERKEY_FOLDER, year)
-
-    for shift in shifts:
-
-        keyboard.append([
-            InlineKeyboardButton(
-                f"📄 Shift {shift}",
-                callback_data=f"answerfile_{year}_{shift}"
-            )
-        ])
-
-    keyboard.append([
-        InlineKeyboardButton("⬅ Back", callback_data="answerkey")
+    keyboard = [
+        [InlineKeyboardButton(f"📄 Shift {shift}", callback_data=f"answerfile_{year}_{shift}")]
+        for shift in get_available_shifts(ANSWERKEY_FOLDER, year)
+    ]
+    if not keyboard:
+        keyboard.append([InlineKeyboardButton("No shifts available", callback_data="home")])
+    keyboard.extend([
+        [InlineKeyboardButton("⬅ Back", callback_data="answerkey")],
+        [InlineKeyboardButton("🏠 Home", callback_data="home")],
     ])
-
-    keyboard.append([
-        InlineKeyboardButton("🏠 Home", callback_data="home")
-    ])
-
     return InlineKeyboardMarkup(keyboard)

@@ -1,90 +1,80 @@
-from telegram import Update
-from telegram.ext import ContextTypes, CommandHandler
 import os
+from telegram import Update
+from telegram.ext import ContextTypes
+from telegram.error import TelegramError
 
-OWNER_ID = int(os.getenv("OWNER_ID"))
+from database import total_users, get_all_users, save_latest_update
 
-from database import total_users, get_all_users
+OWNER_ID = int(os.getenv("OWNER_ID", "0"))
+
+
+def _is_owner(update: Update) -> bool:
+    return bool(update.effective_user and update.effective_user.id == OWNER_ID)
 
 
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if update.effective_user.id != OWNER_ID:
-        await update.message.reply_text("❌ Access Denied")
+    if not _is_owner(update):
+        await update.effective_message.reply_text("❌ Access denied.")
         return
-
-    text = f"""
-👑 Admin Panel
-
-👥 Total Users: {total_users()}
-
-Available Commands
-
-/users
-/broadcast <message>
-"""
-
-    await update.message.reply_text(text)
+    await update.effective_message.reply_text(
+        f"👑 Admin Panel\n\n👥 Total Users: {total_users()}\n\n"
+        "Available commands:\n"
+        "/users — View registered user IDs\n"
+        "/broadcast Your message — Send an announcement to all registered users\n\n"
+        "The latest broadcast is saved for the 📢 Latest Updates button."
+    )
 
 
 async def users(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if update.effective_user.id != OWNER_ID:
+    if not _is_owner(update):
+        await update.effective_message.reply_text("❌ Access denied.")
         return
-
-    users = get_all_users()
-
-    if not users:
-        await update.message.reply_text("No users found.")
+    all_users = get_all_users()
+    await update.effective_message.reply_text(f"👥 Total registered users: {len(all_users)}")
+    if not all_users:
         return
-
-    text = f"👥 Total Users: {len(users)}\n\n"
-
-    for user in users:
-        text += f"{user[0]}\n"
-
-    await update.message.reply_text(text)
+    chunk = ""
+    for row in all_users:
+        candidate = f"{chunk}\n{row[0]}".strip()
+        if len(candidate) > 3500:
+            await update.effective_message.reply_text(chunk)
+            chunk = str(row[0])
+        else:
+            chunk = candidate
+    if chunk:
+        await update.effective_message.reply_text(chunk)
 
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
-    if update.effective_user.id != OWNER_ID:
+    if not _is_owner(update):
+        await update.effective_message.reply_text("❌ Access denied.")
         return
-
     if not context.args:
-        await update.message.reply_text(
-            "Usage:\n/broadcast Your message"
+        await update.effective_message.reply_text(
+            "Usage:\n/broadcast Your announcement here"
         )
         return
 
-    message = " ".join(context.args)
+    message = " ".join(context.args).strip()
+    if not message:
+        await update.effective_message.reply_text(
+            "Usage:\n/broadcast Your announcement here"
+        )
+        return
 
-    users = get_all_users()
-
-    success = 0
-    failed = 0
-
-    for user in users:
-
+    save_latest_update(message)
+    user_ids = get_all_users()
+    sent = failed = 0
+    for row in user_ids:
         try:
-
             await context.bot.send_message(
-                chat_id=user[0],
-                text=message
+                chat_id=row[0], text=f"📢 Latest Update\n\n{message}"
             )
-
-            success += 1
-
-        except:
-
+            sent += 1
+        except TelegramError:
             failed += 1
 
-    await update.message.reply_text(
-
-        f"""✅ Broadcast Finished
-
-Sent : {success}
-
-Failed : {failed}
-"""
+    await update.effective_message.reply_text(
+        f"✅ Broadcast finished!\n\nSent: {sent}\nFailed: {failed}\n\n"
+        "The announcement is now available in the Latest Updates button."
     )
