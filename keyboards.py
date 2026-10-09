@@ -6,7 +6,7 @@ def home_keyboard():
     keyboard = [
         [
             InlineKeyboardButton("📚 PYQ Papers", callback_data="pyq"),
-            InlineKeyboardButton("✅ Answer Keys", callback_data="answerkey"),
+            InlineKeyboardButton("📖 Answer Keys", callback_data="answerkey"),
         ],
         [InlineKeyboardButton("📢 Latest Updates", callback_data="latest_updates")],
         [InlineKeyboardButton("📝 Request a Paper", callback_data="request_paper")],
