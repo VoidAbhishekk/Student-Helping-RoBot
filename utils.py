@@ -2,7 +2,7 @@
 # COMMON TEXT HELPERS
 # -------------------------------
 
-FOOTER = "\n\n━━━━━━━━━━━━━━━━━━━━━━\nMade with ❤️ by Abhishek\n(@VoidAbhishekk)"
+FOOTER = "\n\n━━━━━━━━━━━━━━━━━━━━━━\n"
 
 
 def format_message(text: str) -> str:
