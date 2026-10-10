@@ -13,8 +13,9 @@ from admin_keyboard import (
 from database import (
     total_users,
     get_premium_users,
+    save_premium_key,
 )
-
+from admin import generate_access_key
 
 async def admin_callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
@@ -95,4 +96,28 @@ Choose an option below 👇""",
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
 
+        return
+            # ==========================
+    # GENERATE PREMIUM KEY
+    # ==========================
+
+    if data == "generate_key":
+
+        key = generate_access_key()
+
+        save_premium_key(key)
+
+        await query.edit_message_text(
+            f"""✅ Premium Key Generated
+
+━━━━━━━━━━━━━━
+
+<code>{key}</code>
+
+━━━━━━━━━━━━━━
+
+Keep this key secure.""",
+            parse_mode="HTML",
+            reply_markup=premium_admin_keyboard(),
+        )
         return
