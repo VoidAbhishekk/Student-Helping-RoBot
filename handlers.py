@@ -47,44 +47,6 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     data = query.data or ""
-    elif data == "admin_users":
-        await query.edit_message_text(
-            "👥 User Management\n\n"
-            "This section is under development.\n\n"
-            "Soon you'll be able to:\n"
-            "• View all users\n"
-            "• Search users\n"
-            "• View premium users",
-            reply_markup=admin_keyboard(),
-        )
-
-    elif data == "admin_premium":
-        await query.edit_message_text(
-            "⭐ Premium Management\n\n"
-            "Choose an option:\n\n"
-            "• Generate Key\n"
-            "• View Premium Users\n"
-            "• Delete All Keys",
-            reply_markup=admin_keyboard(),
-        )
-
-    elif data == "admin_broadcast":
-        await query.edit_message_text(
-            "📢 Broadcast\n\n"
-            "Use the command:\n\n"
-            "/broadcast Your message",
-            reply_markup=admin_keyboard(),
-        )
-
-    elif data == "admin_stats":
-        await query.edit_message_text(
-            f"""📊 Bot Statistics
-
-    👥 Total Users: {total_users()}
-
-    More statistics coming soon...""",
-            reply_markup=admin_keyboard(),
-        )
     user = query.from_user
 
     if data == "home":
