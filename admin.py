@@ -2,6 +2,7 @@ import os
 from telegram import Update
 from telegram.ext import ContextTypes
 from telegram.error import TelegramError
+from admin_keyboard import admin_keyboard
 import random
 import string
 from database import (
@@ -30,15 +31,22 @@ def generate_access_key():
     return "SHB-" + "-".join(parts)
 
 async def admin(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
     if not _is_owner(update):
         await update.effective_message.reply_text("❌ Access denied.")
         return
+
     await update.effective_message.reply_text(
-        f"👑 Admin Panel\n\n👥 Total Users: {total_users()}\n\n"
-        "Available commands:\n"
-        "/users — View registered user IDs\n"
-        "/broadcast Write your message — Send an announcement to all registered users\n\n"
-        "The latest broadcast is saved for the latest Updates button. 📢"
+        f"""👑 Student Helping Bot
+
+Admin Dashboard
+
+👥 Total Users: {total_users()}
+
+━━━━━━━━━━━━━━
+
+Choose an option below 👇""",
+        reply_markup=admin_keyboard(),
     )
 
 
