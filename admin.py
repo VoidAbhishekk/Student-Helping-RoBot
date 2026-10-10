@@ -111,6 +111,7 @@ async def createkey(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def premiumusers(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    print(">>> premiumusers command called")
 
     if not _is_owner(update):
         await update.effective_message.reply_text("❌ Access denied.")
