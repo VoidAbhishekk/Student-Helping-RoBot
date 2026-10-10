@@ -28,7 +28,7 @@ app.add_handler(CommandHandler("ptest", premiumusers))
 app.add_handler(
     CallbackQueryHandler(
         admin_callback_handler,
-        pattern="^admin_|^premium_|^generate_|^delete_",
+        pattern="^admin_|^premium_|^generate_|^delete_|^user_",
     )
 )
 

@@ -206,3 +206,18 @@ def revoke_premium(user_id):
             """,
             (user_id,),
         )
+
+def get_all_user_profiles():
+    with _connect() as conn:
+        rows = conn.execute("""
+            SELECT
+                user_id,
+                full_name,
+                username,
+                is_premium,
+                registered_at
+            FROM users
+            ORDER BY registered_at DESC
+        """).fetchall()
+
+    return rows
