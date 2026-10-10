@@ -3,14 +3,14 @@ from telegram.ext import (
     Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters,
 )
 from handlers import start, button_handler, receive_suggestion
-from admin_panel.commands import (
+from admin import (
     admin,
     users,
     broadcast,
     createkey,
     premiumusers,
 )
-from admin_panel.callbacks import admin_callback_handler
+from admin_callbacks import admin_callback_handler
 
 TOKEN = os.getenv("TOKEN")
 if not TOKEN:
