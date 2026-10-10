@@ -24,6 +24,7 @@ async def admin_callback_handler(update: Update, context: ContextTypes.DEFAULT_T
     await query.answer()
 
     data = query.data
+    print("ADMIN CALLBACK:", data)
 
     # ==========================
     # ADMIN HOME
