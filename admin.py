@@ -129,13 +129,13 @@ async def premiumusers(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for i, row in enumerate(users, start=1):
 
-        username = f"@{row['username']}" if row["username"] else "Not set"
+        username = f"@{row[2]}" if row[2] else "Not set"
 
         text += (
-            f"{i}. {row['full_name']}\n"
-            f"🆔 {row['user_id']}\n"
+            f"{i}. {row[1]}\n"
+            f"🆔 {row[0]}\n"
             f"👤 {username}\n"
-            f"📅 {row['registered_at']}\n\n"
+            f"📅 {row[3]}\n\n"
         )
 
     text += f"━━━━━━━━━━━━━━\n\nTotal Premium Users: {len(users)}"
