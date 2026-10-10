@@ -32,3 +32,33 @@ def admin_keyboard():
     ]
 
     return InlineKeyboardMarkup(keyboard)
+
+def premium_admin_keyboard():
+    keyboard = [
+        [
+            InlineKeyboardButton(
+                "👥 Premium Users",
+                callback_data="premium_users",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "🔑 Generate Key",
+                callback_data="generate_key",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "🗑 Delete All Keys",
+                callback_data="delete_all_keys",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "⬅ Back",
+                callback_data="admin_home",
+            )
+        ],
+    ]
+
+    return InlineKeyboardMarkup(keyboard)
