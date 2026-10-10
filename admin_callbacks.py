@@ -5,7 +5,7 @@ from telegram import (
 )
 from telegram.ext import ContextTypes
 
-from .keyboards import (
+from admin_keyboard import (
     admin_keyboard,
     premium_admin_keyboard,
 )
